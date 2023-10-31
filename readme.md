@@ -31,6 +31,8 @@ Il faut alors se rendre sur le localhost, le port est indiqué en console.
 
 Les pages / et /secure sont les mêmes ; La page secure ne doit être accessible qu'une fois autentifié(e). Le front-ent sert uniquement de test simple, comme alternative à postman.  
 
-Le token JWT est soit envoyé par headers en cas de single-page-application, soit envoyée par cookie.
+Le token JWT est soit envoyé par headers en cas de single-page-application, soit envoyée par cookie.  
+
+La sécurisation des données est à ajouter côté front et côté serveur.
 
 

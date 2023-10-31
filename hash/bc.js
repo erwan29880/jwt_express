@@ -9,11 +9,19 @@ class Hash {
     #salt = process.env.secret;
 
     hash(pwdToHash) {
-        return bcrypt.hashSync(pwdToHash, this.#salt);
+        try {
+            return bcrypt.hashSync(pwdToHash, this.#salt);
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     compare(hashedPwd, pwdToCompare) {
-        return bcrypt.compareSync(pwdToCompare, hashedPwd);
+        try {
+            return bcrypt.compareSync(pwdToCompare, hashedPwd);
+        } catch (err) {
+            console.log(err);
+        }
     }
 
 }

@@ -11,75 +11,106 @@ const results = document.querySelector("#mef");
 
 // message d'erreur en fonction des réponses serveur
 const modifyMessage = (message) => {
-    const p = document.createElement("p");
-    p.innerText = message;
-    p.style.fontWeight = "bold";
-
-    container.innerHTML = "";
-    container.appendChild(p);
+    try {
+        const p = document.createElement("p");
+        p.innerText = message;
+        p.style.fontWeight = "bold";
+    
+        container.innerHTML = "";
+        container.appendChild(p);
+    } catch (err) {
+        return;
+    }
 }
 
 // mise en forme des résultats get
 const mef = (obj) => {
-    results.innerHTML = "";
-    for (let o of obj) {
-        const p = document.createElement("p");
-        const button = document.createElement("button");
-        button.innerText = "\ud83d\uddd1";
-        p.innerText = o.id + " : pseudo : " + o.pseudo + ", password : " + o.password;
-        results.appendChild(p);
-        results.appendChild(button);
-
-        button.addEventListener("click", () => {
-            delData(o.id)
-        })
+    try {
+        results.innerHTML = "";
+        for (let o of obj) {
+            const p = document.createElement("p");
+            const button = document.createElement("button");
+            button.innerText = "\ud83d\uddd1";
+            p.innerText = o.id + " : pseudo : " + o.pseudo + ", password : " + o.password;
+            results.appendChild(p);
+            results.appendChild(button);
+    
+            button.addEventListener("click", () => {
+                delData(o.id)
+            })
+        }
+    } catch (err) {
+        return;
     }
 }
 
 
 const getData = async() => {
-    await fetch('/getdata')
-    .then(res => res.json())
-    .then(res => mef(res));
+    try {
+        await fetch('/getdata')
+        .then(res => res.json())
+        .then(res => mef(res))
+        .catch(err => console.log(err));
+    } catch (err) {
+        return;
+    }
 }
 
 const postData = async () => {
-    await fetch('/postdata', {
-        method: "POST", 
-        headers: {"Content-Type" : "application/json"},
-        body: JSON.stringify({
-            pseudo: pseudo.value,
-            password: password.value
-        })
-    }).then(res => res.json())
-    .then(res => modifyMessage(res.message));
+    try {
+        await fetch('/postdata', {
+            method: "POST", 
+            headers: {"Content-Type" : "application/json"},
+            body: JSON.stringify({
+                pseudo: pseudo.value,
+                password: password.value
+            })
+        }).then(res => res.json())
+        .then(res => modifyMessage(res.message))
+        .catch(err => console.log(err));
 
-    setTimeout(() => getData(), 400);
+        setTimeout(() => getData(), 400);
+    } catch (err) {
+        return;
+    }
+
 }
 
 
 // vérification serveur afin de créer un token ou non 
 const checkData = async () => {
-    await fetch('/check', {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
-        body: JSON.stringify({
-            pseudo: pseudo2.value,
-            password: password2.value
+    try {
+        await fetch('/check', {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                pseudo: pseudo2.value,
+                password: password2.value
+            })
+        }).then(res => res.json())
+        .then(res => {
+            res.message ? 
+            modifyMessage("vous êtes autentifié(e)") : 
+            modifyMessage("problème d'identification") 
         })
-    }).then(res => res.json())
-    .then(res => {
-        res.message ? modifyMessage("vous êtes autentifié(e)") : modifyMessage("problème d'identification") 
-    });
+        .catch(err => console.log(err));
+    } catch (err) {
+        return;
+    }
 }
 
 
 const delData = async(id) => {
-    await fetch('/deldata/'+ id, {method: "DELETE"})
-    .then(res => res.json())
-    .then(res => modifyMessage(res.message))
-
-    setTimeout(() => getData(), 400);
+    try {
+        await fetch('/deldata/'+ id, {method: "DELETE"})
+        .then(res => res.json())
+        .then(res => modifyMessage(res.message))
+        .catch(err => console.log(err));
+    
+        setTimeout(() => getData(), 400);
+    } catch (err) {
+        return;
+    }
 }
 
 

@@ -5,11 +5,11 @@ const EXPIRE = 24*60*60;
 // -- views  
 
 exports.index = (req, res) => {
-    res.render("../views/index.ejs", {err : false});
+    return res.render("../views/index.ejs", {err : false});
 }
 
 exports.secure = (req, res) => {
-    res.render("../views/secure.ejs");
+    return res.render("../views/secure.ejs");
 }
 
 
@@ -20,7 +20,7 @@ exports.getData = (req, res) => {
     try {
         Db.getAllData().then(resu => res.status(200).send(resu));
     } catch {
-        res.status(403).send({message : "erreur serveur"});
+        return res.status(403).send({message : "erreur serveur"});
     }
 }
 
@@ -29,11 +29,11 @@ exports.postData = (req, res) => {
     const Db = new sql();
     try {
         Db.insertData(req.body).then(resu => {
-            if (resu) res.status(201).send({message : "vérifiez pseudo et mot de passe"});
-            else res.status(201).send({message : "ressource créée"});
+            if (resu) return res.status(201).send({message : "vérifiez pseudo et mot de passe"});
+            else return res.status(201).send({message : "ressource créée"});
         });
     } catch {
-        res.status(403).send({message : "erreur serveur"});
+        return res.status(403).send({message : "erreur serveur"});
     }
 }
 
@@ -49,17 +49,17 @@ exports.checkPseudoAndPassword = async (req, res, next) => {
         res.header('Authorization', 'Bearer ' + token); // pas obligatoire
         res.cookie("jwt",token , {maxAge: EXPIRE * 1000});
     }
-    res.status(200).send({message : check});
+    return res.status(200).send({message : check});
 }
 
 exports.deleteData = (req, res) => {
     const Db = new sql();
     try {
         const check = Db.deleteDataById(req.params.id)
-        if (check) res.status(201).send({message : "probleme de suppression"});
-        else res.status(201).send({message : "entrée supprimée"});
+        if (check) return res.status(201).send({message : "probleme de suppression"});
+        else return res.status(201).send({message : "entrée supprimée"});
     } catch {
-        res.status(403).send({message : "erreur serveur"});
+        return res.status(403).send({message : "erreur serveur"});
     }
 }
 
