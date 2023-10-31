@@ -1,15 +1,26 @@
-const sql = require('../mysql/sql')
+const sql = require('../mysql/sql');
+const jwt = require('jsonwebtoken');
+const EXPIRE = 24*60*60;
+
+// -- views  
 
 exports.index = (req, res) => {
-    res.render("../views/index.ejs");
+    res.render("../views/index.ejs", {err : false});
 }
+
+exports.secure = (req, res) => {
+    res.render("../views/secure.ejs");
+}
+
+
+// -- crud
 
 exports.getData = (req, res) => {
     const Db = new sql();
     try {
         Db.getAllData().then(resu => res.status(200).send(resu));
     } catch {
-        res.status(403).send({message : "erreur serveur"})
+        res.status(403).send({message : "erreur serveur"});
     }
 }
 
@@ -18,22 +29,56 @@ exports.postData = (req, res) => {
     const Db = new sql();
     try {
         Db.insertData(req.body).then(resu => {
-            if (resu) res.status(201).send({message : "vérifiez pseudo et mot de passe"})
-            else res.status(201).send({message : "ressource créée"})
+            if (resu) res.status(201).send({message : "vérifiez pseudo et mot de passe"});
+            else res.status(201).send({message : "ressource créée"});
         });
     } catch {
-        res.status(403).send({message : "erreur serveur"})
+        res.status(403).send({message : "erreur serveur"});
     }
 }
 
+exports.checkPseudoAndPassword = async (req, res, next) => {
+    const Db = new sql();
+    const check = await Db.comparePwd(req.body);
+    if (check) {
+        const token = jwt.sign(
+            {user: req.body.pseudo},
+            process.env.JWT,
+            {expiresIn : EXPIRE}
+        );
+        res.header('Authorization', 'Bearer ' + token); // pas obligatoire
+        res.cookie("jwt",token , {maxAge: EXPIRE * 1000});
+    }
+    res.status(200).send({message : check});
+}
 
 exports.deleteData = (req, res) => {
     const Db = new sql();
     try {
         const check = Db.deleteDataById(req.params.id)
-        if (check) res.status(201).send({message : "probleme de suppression"})
-        else res.status(201).send({message : "entrée supprimée"})
+        if (check) res.status(201).send({message : "probleme de suppression"});
+        else res.status(201).send({message : "entrée supprimée"});
     } catch {
-        res.status(403).send({message : "erreur serveur"})
+        res.status(403).send({message : "erreur serveur"});
     }
+}
+
+
+// -- middlewares
+
+exports.checkJWT = async (req, res, next) => {
+    const token = req.cookies.jwt;
+    if (token) {
+        jwt.verify(token, process.env.JWT, (err, decoded) => {
+            if (err) return res.render("../views/index.ejs", {err : "bad credentials"});
+            else next(); 
+        });
+    } else {
+        return res.render("../views/index.ejs", {err : "bad credentials"});
+    }
+}
+
+exports.clearCookie = (req, res, next) => {
+    res.clearCookie('jwt');
+    next();
 }

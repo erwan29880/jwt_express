@@ -1,9 +1,13 @@
 const escape = require('escape-html');
 const conn = require('./pool');
-const Injection = require('./injection');
 const HashClass = require('../hash/bc');
 
+/**
+ * requêtes sql
+ */
 class Requetes extends HashClass{
+
+    static increment = 0;
 
     constructor() {
         super();
@@ -16,7 +20,6 @@ class Requetes extends HashClass{
                 resolve(result);
             })
         });
-
         return promise.then(val => val);
     }
 
@@ -34,7 +37,7 @@ class Requetes extends HashClass{
     async getDataByPseudoAndPassword(obj) {
         const { pseudo, password } = obj;
         const promise = new Promise((resolve) => {
-            conn.query("select * from users where pseudo=? and password=?;", [pseudo, this.hash(password)], (err, result) => {
+            conn.query("select * from users where pseudo=? and password=? limit 1;", [pseudo, this.hash(password)], (err, result) => {
                 if (err) throw err;
                 resolve(result);
             })
@@ -42,16 +45,25 @@ class Requetes extends HashClass{
         return promise.then(val => val);
     }
 
+    async comparePwd(obj) {
+        const { password } = obj;
+        const b = await this.getDataByPseudoAndPassword(obj).then(resu => {
+            if (resu.length === 0) return false;
+            return (resu[0].password === this.hash(password));
+        })
+        console.log(b)
+        return b;
+    }
+    
+
     async insertData(obj) {
         const { pseudo, password } = obj;
-        console.log(`pseudo : ${pseudo} - pwd : ${password}`);
 
         // vérifier si l'entrée existe avant insertion
         const check1 = await this.getDataByPseudoAndPassword(obj).then(res => {
             return (res.length !== 0) ? true : false;
         })
         if (check1) return true;
-        
         
         const requete = "insert into users (pseudo, password) values (?, ?);";
         conn.query(requete, [pseudo, this.hash(password)], (err) => {

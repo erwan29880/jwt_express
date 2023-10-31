@@ -10,12 +10,13 @@
 <body>
     
     <div>
-        <h1>Vous êtes sur la page non-sécurisée</h1>
+        
+        <h1>Vous êtes sur la page sécurisée</h1>
 
         <nav>
             <div class="nav-flex">
                 <div><button class="btn"><a href="/">index</a></button></div>
-                <div><button class="btn"><a href="/secure">secure</a></button></div>
+                <div><button class="btn"><a href="/logout">se déconnecter</a></button></div>
             </div>
         </nav>
 
@@ -32,18 +33,13 @@
             <div>
                 <b>Vérifier l'utilisateur</b>
                 <p>pseudo : </p>
-                <input type="text" name="pseudo2" id="pseudo2" value="erwan">
+                <input type="text" name="pseudo2" id="pseudo2">
                 <p>Mot de passe : </p>
-                <input type="text" name="password2" id="password2" value="test">
+                <input type="text" name="password2" id="password2">
                 <button id="envoyer2">envoyer</button>
             </div>
         </div>
         
-        <div id="message-backend">
-            <% if (err) { %>
-                <b><%= err %></b>
-            <% } %>
-        </div>
         <div id="container"></div>
         <div id="mef"></div>
 

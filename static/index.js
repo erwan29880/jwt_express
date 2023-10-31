@@ -9,6 +9,7 @@ const container = document.querySelector("#container");
 const results = document.querySelector("#mef");
 
 
+// message d'erreur en fonction des réponses serveur
 const modifyMessage = (message) => {
     const p = document.createElement("p");
     p.innerText = message;
@@ -18,7 +19,7 @@ const modifyMessage = (message) => {
     container.appendChild(p);
 }
 
-
+// mise en forme des résultats get
 const mef = (obj) => {
     results.innerHTML = "";
     for (let o of obj) {
@@ -57,6 +58,22 @@ const postData = async () => {
 }
 
 
+// vérification serveur afin de créer un token ou non 
+const checkData = async () => {
+    await fetch('/check', {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+            pseudo: pseudo2.value,
+            password: password2.value
+        })
+    }).then(res => res.json())
+    .then(res => {
+        res.message ? modifyMessage("vous êtes autentifié(e)") : modifyMessage("problème d'identification") 
+    });
+}
+
+
 const delData = async(id) => {
     await fetch('/deldata/'+ id, {method: "DELETE"})
     .then(res => res.json())
@@ -67,5 +84,6 @@ const delData = async(id) => {
 
 
 envoyer.addEventListener("click", postData);
+envoyer2.addEventListener("click", checkData);
 
 getData();
