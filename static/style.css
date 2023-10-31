@@ -3,3 +3,22 @@ body{
     margin:auto;
     background-color: aliceblue;
 }
+
+h1{
+    width: 100%;
+    text-align: center;
+}
+
+.fl {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.fl div{
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 7px;
+    box-shadow: -2px 7px 7px lightgray;
+}

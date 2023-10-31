@@ -18,7 +18,7 @@ exports.postData = (req, res) => {
     const Db = new sql();
     try {
         Db.insertData(req.body).then(resu => {
-            if (resu) res.status(201).send({message : "vérifiez nom et prénom"})
+            if (resu) res.status(201).send({message : "vérifiez pseudo et mot de passe"})
             else res.status(201).send({message : "ressource créée"})
         });
     } catch {

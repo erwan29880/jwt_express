@@ -1,8 +1,9 @@
 const escape = require('escape-html');
 const conn = require('./pool');
 const Injection = require('./injection');
+const HashClass = require('../hash/bc');
 
-class Requetes extends Injection{
+class Requetes extends HashClass{
 
     constructor() {
         super();
@@ -20,10 +21,9 @@ class Requetes extends Injection{
     }
 
     
-    async getDataByName(nom) {
-        const newNom = this.checkPattern(nom) ? '' : escape(nom);
+    async getDataByPseudo(pseudo) {
         const promise = new Promise((resolve) => {
-            conn.query("select * from users where nom=?;", [newNom], (err, result) => {
+            conn.query("select * from users where pseudo=?;", [pseudo], (err, result) => {
                 if (err) throw err;
                 resolve(result);
             })
@@ -31,11 +31,10 @@ class Requetes extends Injection{
         return promise.then(val => val);
     }
 
-    async getDataByNameAndPrename(obj) {
-        const nom = this.checkPattern(obj.nom) ? '' : escape(obj.nom);
-        const prenom = this.checkPattern(obj.prenom) ? '' : escape(obj.prenom);
+    async getDataByPseudoAndPassword(obj) {
+        const { pseudo, password } = obj;
         const promise = new Promise((resolve) => {
-            conn.query("select * from users where nom=? and prenom=?;", [nom, prenom], (err, result) => {
+            conn.query("select * from users where pseudo=? and password=?;", [pseudo, this.hash(password)], (err, result) => {
                 if (err) throw err;
                 resolve(result);
             })
@@ -44,28 +43,27 @@ class Requetes extends Injection{
     }
 
     async insertData(obj) {
-        const nom = this.checkPattern(obj.nom) ? '' : escape(obj.nom);
-        const prenom = this.checkPattern(obj.prenom) ? '' : escape(obj.prenom);
+        const { pseudo, password } = obj;
+        console.log(`pseudo : ${pseudo} - pwd : ${password}`);
 
         // vérifier si l'entrée existe avant insertion
-        const check1 = await this.getDataByNameAndPrename(obj).then(res => {
+        const check1 = await this.getDataByPseudoAndPassword(obj).then(res => {
             return (res.length !== 0) ? true : false;
         })
         if (check1) return true;
         
         
-        const requete = "insert into users (nom, prenom) values (?, ?);";
-        conn.query(requete, [nom, prenom], (err) => {
+        const requete = "insert into users (pseudo, password) values (?, ?);";
+        conn.query(requete, [pseudo, this.hash(password)], (err) => {
             if (err) return true;
         });
         return false;
     }
 
     deleteData(obj) {
-        const requete = "delete from users where nom=? and prenom=?;";
-        const nom = this.checkPattern(obj.nom) ? '' : escape(obj.nom);
-        const prenom = this.checkPattern(obj.prenom) ? '' : escape(obj.prenom);
-        conn.query(requete, [nom, prenom], (err) => {
+        const { pseudo, password } = obj;
+        const requete = "delete from users where pseudo=? and password=?;";
+        conn.query(requete, [pseudo, this.hash(password)], (err) => {
             if (err) return true;
         });
         return false;
@@ -73,7 +71,7 @@ class Requetes extends Injection{
 
     deleteDataById(id) {
         const requete = "delete from users where id=?;";
-        conn.query(requete, [escape(id)], (err) => {
+        conn.query(requete, [id], (err) => {
             if (err) return true;
         });
         return false;

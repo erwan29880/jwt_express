@@ -2,11 +2,12 @@ version: '3.6'
 
 services:
   bddmysql:
-    container_name: "jee_inj"
+    container_name: "node_jwt"
+    build:
+      context: .
+      dockerfile: DockerfileSql
     image: mysql:5
     ports:
       - 3307:3306
     environment:
       - MYSQL_ROOT_PASSWORD=pa
-    volumes:
-      - ./mysqld:/var/lib/mysqld

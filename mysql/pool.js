@@ -4,10 +4,10 @@ let conn = undefined;
 try {
     conn = mysql.createPool({
         "host": "localhost",
-        "user": "root",
+        "user": "node",
         "port": 3307,
-        "password": "pa",
-        "database": "jee",
+        "password": "pwd",
+        "database": "jwt",
         "waitForConnections": false,
         "connectionLimit": 100,
         "maxIdle": 10,
